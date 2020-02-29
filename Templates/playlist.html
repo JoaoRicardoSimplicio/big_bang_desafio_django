@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+
+{% block title %}Encontre sua Playlist{% endblock %}
+
+
+{% block conteudo %}
+            {% if datas_weaher %}
+                <div class="card my-3">
+                    <div class="card-body">
+                            {{ datas_weaher.name_city }} está com {{ datas_weaher.temperature}}° agora. Sugerimos algumas playlists de {{ datas_weaher.music_style}} para você!
+                    </div>
+                </div>
+            {% endif %}
+            {% if playlists %} 
+                <div class="row row-cols-1 row-cols-md-3">
+                    {% for playlist in playlists %}
+                    <div class="col mb-4 my-2">
+                        <div class="card h-100">
+                            <img src="{{ playlist.image_datas}}" class="card-img-top">
+                                <div class="card-body centro">
+                                    <h5 class="card-title">{{ playlist.name }}</h5>
+                                        <p class="card-text">{{ playlist.description }}</p>
+                                        <a class='centro btn btn-primary' href="{{ playlist.url }}" target="blank">Acessar Playlist</a>
+                                </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+{% endblock conteudo %}
