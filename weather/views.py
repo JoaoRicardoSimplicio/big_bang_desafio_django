@@ -43,24 +43,29 @@ def Consultar(request):
 
 
         if datas_resul['temperature'] > 30:
-            playlists = GetPlaylistSpotify(request, 'party')
+            style = "party"
             datas_resul['music_style'] = 'Party'
         
         elif datas_resul['temperature'] <= 30 and datas_resul['temperature'] >= 15:
-            playlists = GetPlaylistSpotify(request, "pop")
+            style = "pop"
             datas_resul['music_style'] = 'Pop'
 
         elif datas_resul['temperature'] < 15 and datas_resul['temperature'] >= 10:
-            playlists = GetPlaylistSpotify(request, "rock")
+            style = "rock"
             datas_resul['music_style'] = 'Rock'
          
         elif datas_resul['temperature'] < 10:
-            playlists = GetPlaylistSpotify(request, 'classical music')
+            style = "classical music"
             datas_resul['music_style'] = 'Classical Music'
+
+        playlists = GetPlaylistSpotify(request, style)
 
         if playlists == "error3":
             message_error = "Não foi possível encontrar playlist adequada para seu 'Clima'!"
             return ReturnWithError(request, message_error) 
+        elif playlists == "error4":
+            message_error = "Houve um erro no momento de selecionar as playlists!"
+            return ReturnWithError(request, message_error)
 
         playlists_view = TransformDataSpotify(playlists)   
 
@@ -73,16 +78,17 @@ def TransformDataSpotify(playlists):
     playlists_data = []
     for playlist in playlists.values():
         for about_playlist in (playlist.get('items')):
-            items_playlist = ({
+            print("inicio\n")
+            print(about_playlist)
+            print("\n\n\n")
+            items_playlist = ({ 
                 "description" : about_playlist['description'],
                 "name" : about_playlist['name'],
                 "url" : about_playlist['external_urls']['spotify'],
                 "image_datas" : about_playlist['images'][0]['url'],
             })
-            if items_playlist['description'].find("</a>") > 1:
-                string1 = items_playlist['description'].split('<a')
-                string2 = string1[1].split(',')
-                items_playlist['description'] = string1[0] + string2[1]
+            if items_playlist['description'].find("</a>") != -1:
+                print(items_playlist['description'],"\n\n")
             playlists_data.append(items_playlist)
     
     return playlists_data;
@@ -95,8 +101,8 @@ def GetTemperature(request, address_name):
     # Coordenadas Geográficas
     location = GetCoordinates(request, address_name)
 
-    if location == "error1":
-        return location
+    if location is None or location == "connection_error":
+        return "error1"
 
     api_weather_data = ('http://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&appid=aa6df645abaebf0db52dfe1e1965b4a0&units=metric' .format(location.latitude, location.longitude))
 
@@ -136,11 +142,12 @@ def GetCoordinates(request, address):
     
     geolocator = Nominatim()
 
+    print(dir(geolocator))
+
+    print(geolocator.timeout)
+
     location = geolocator.geocode(address)
 
-    if location is None or location == " ":
-        return "error1"
- 
     return location
 
 
@@ -151,15 +158,16 @@ def ConnectSpotify():
     id = 'e4ee65ef097b4474932ce77b371808a1'
 
     secret = '64302df18d87452ea13389e40acf212e'
+    
+    try:
+        client_credentials_manager = SpotifyClientCredentials(client_id=id, client_secret=secret)
+        
+        sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
 
-    client_credentials_manager = SpotifyClientCredentials(client_id=id, client_secret=secret)
-
-    sp = spotipy.Spotify(client_credentials_manager = client_credentials_manager)
-
-    if sp is None or sp == " ":
+        return sp
+        
+    except:
         return "error3"
-
-    return sp
 
 
 
@@ -171,7 +179,10 @@ def GetPlaylistSpotify(request, style):
     if spotipy == 'error3':
         return spotipy
 
-    result = spotipy.search(q=style, type='playlist', limit=12)
+    result = spotipy.search(q=('{0}-playlists' .format(style)), type='playlist', limit=12)
+
+    if result is None or result == " ":
+        return "error4"
 
     return result
 
