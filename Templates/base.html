@@ -6,9 +6,11 @@
         <title>{% block title %}{% endblock %}</title>
     </head>
     <body>
+        {% block navbar %}
         <nav class="navbar navbar-light bg-primary">
-            <a class='branco' href='/weather/'>Consultar</a>
+            <a class='branco' href='/'>Menu Principal</a>
         </nav>
+        {% endblock %}
         <div class='container'>
             {% block conteudo %}
             {% endblock %}
