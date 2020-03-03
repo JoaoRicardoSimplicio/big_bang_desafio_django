@@ -8,7 +8,7 @@
             {% if datas_weaher %}
                 <div class="card my-3">
                     <div class="card-body">
-                            {{ datas_weaher.name_city }} está com {{ datas_weaher.temperature}}° agora. Sugerimos algumas playlists de {{ datas_weaher.music_style}} para você!
+                            {{ datas_weaher.name_city }} está com {{ datas_weaher.temperature}}° agora. Sugerimos uma playlist de {{ datas_weaher.music_style}} para você!
                     </div>
                 </div>
             {% endif %}
@@ -17,11 +17,11 @@
                     {% for playlist in playlists %}
                     <div class="col mb-4 my-2">
                         <div class="card h-100">
-                            <img src="{{ playlist.image_datas}}" class="card-img-top">
+                            <img src="{{ playlist.image_link}}" class="card-img-top">
                                 <div class="card-body centro">
-                                    <h5 class="card-title">{{ playlist.name }}</h5>
-                                        <p class="card-text">{{ playlist.description }}</p>
-                                        <a class='centro btn btn-primary' href="{{ playlist.url }}" target="blank">Acessar Playlist</a>
+                                    <h5 class="card-title">{{ playlist.music }}</h5>
+                                        <p class="card-text">{{ playlist.name }}</p>
+                                        <a class='centro btn btn-primary' href="{{ playlist.music_link }}" target="blank">Acessar Música</a>
                                 </div>
                         </div>
                     </div>
