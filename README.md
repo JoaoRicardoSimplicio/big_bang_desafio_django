@@ -2,16 +2,17 @@ O Projeto a seguir sugere playlists com base na temperatura de determinada cidad
 
 Como rodar o projeto?
 
-    Clone esse repositório.
-    Crie um virtualenv com Python 3.
-    Ative o virtualenv.
-    Instale as dependências.
-    Rode as migrações.
+    Clone esse repositório. --->  git clone https://github.com/JoaoRicardoSimplicio/big_bang_desafio_django.git
+    Entre no diretório do projeto ---> cd big_bang_desafio_django
+    Crie um virtualenv com Python 3. ---> python3 -m venv .venv
+    Ative o virtualenv. --->  source .venv/bin/activate
+    Instale as dependências. ---> pip install -r requirements.txt
+    Inicie o servidor local. ---> python manage.py runserver
 
-git clone https://github.com/JoaoRicardoSimplicio/big_bang_desafio_django.git
-cd big_bang_desafio_django
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python manage.py runserver
+    
+    
+    
+   
+    
+    
 
