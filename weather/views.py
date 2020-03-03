@@ -6,6 +6,7 @@ from geopy.geocoders import Nominatim
 import spotipy 
 import spotipy.util as util
 from spotipy.oauth2 import SpotifyClientCredentials
+from random import randint
 
 # Create your views here.
 
@@ -58,40 +59,39 @@ def Consultar(request):
             style = "classical music"
             datas_resul['music_style'] = 'Classical Music'
 
-        playlists = GetPlaylistSpotify(request, style)
+        tracks_list = GetPlaylistSpotify(request, style)
 
-        if playlists == "error3":
+        if tracks_list == "error3":
             message_error = "Não foi possível encontrar playlist adequada para seu 'Clima'!"
             return ReturnWithError(request, message_error) 
-        elif playlists == "error4":
-            message_error = "Houve um erro no momento de selecionar as playlists!"
+        elif tracks_list == "error4":
+            message_error = "Houve um erro no momento de selecionar as músicas!"
             return ReturnWithError(request, message_error)
 
-        playlists_view = TransformDataSpotify(playlists)   
+        tracks = TransformDataSpotify(tracks_list)   
 
-        return render(request, 'playlist.html', { "playlists" : playlists_view, "datas_weaher" : datas_resul })
-
-
+        return render(request, 'playlist.html', { "playlists" : tracks, "datas_weaher" : datas_resul })
 
 
-def TransformDataSpotify(playlists):
-    playlists_data = []
-    for playlist in playlists.values():
-        for about_playlist in (playlist.get('items')):
-            print("inicio\n")
-            print(about_playlist)
-            print("\n\n\n")
-            items_playlist = ({ 
-                "description" : about_playlist['description'],
-                "name" : about_playlist['name'],
-                "url" : about_playlist['external_urls']['spotify'],
-                "image_datas" : about_playlist['images'][0]['url'],
-            })
-            if items_playlist['description'].find("</a>") != -1:
-                print(items_playlist['description'],"\n\n")
-            playlists_data.append(items_playlist)
+
+
+def TransformDataSpotify(tracks_list):
+    tracks_data = []
+    for track in tracks_list:
+        new_track = dict()
+        new_track['music'] = track['track']['album']['name']
+        print(track['track']['album'], "\n")
+        print(track['track']['album']['external_urls'], "\n\n\n")
+        if track['track']['album']['external_urls']['spotify']:
+            new_track['music_link'] = track['track']['album']['external_urls']['spotify']
+        for artist in track['track']['album']['artists']:
+            new_track['name'] = artist['name']
+        for image in track['track']['album']['images']:
+            new_track['image_link'] = image['url']
+            break
+        tracks_data.append(new_track)
     
-    return playlists_data;
+    return tracks_data;
 
 
 
@@ -142,10 +142,6 @@ def GetCoordinates(request, address):
     
     geolocator = Nominatim()
 
-    print(dir(geolocator))
-
-    print(geolocator.timeout)
-
     location = geolocator.geocode(address)
 
     return location
@@ -179,10 +175,18 @@ def GetPlaylistSpotify(request, style):
     if spotipy == 'error3':
         return spotipy
 
-    result = spotipy.search(q=('{0}-playlists' .format(style)), type='playlist', limit=12)
+    result = spotipy.search(q=('{0}-releases' .format(style)), type='playlist', limit=50)
 
-    if result is None or result == " ":
+    items_result = result['playlists']['items']
+
+    id_playlist = items_result[randint(0, 49)]['id']
+
+    playlist = spotipy.playlist(id_playlist)
+
+    tracks = playlist['tracks']['items']
+
+    if tracks is None or tracks == " ":
         return "error4"
 
-    return result
+    return tracks
 
